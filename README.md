@@ -1,16 +1,6 @@
 # Telegram Message Monitor
 
-A small Python script that logs new Telegram messages from a selected user and downloads their attachments.
-
-Use it only with accounts, chats, and data you are allowed to access.
-
-## Features
-
-- Monitors new messages from one Telegram username.
-- Saves message text to `log-<username>.txt`.
-- Downloads images to `images-<username>/`.
-- Downloads voice messages and video notes to `voice-<username>/`.
-- Downloads other attachments to `files-<username>/`.
+Python script that logs new Telegram messages from a selected user and downloads their attachments.
 
 ## Requirements
 
@@ -73,16 +63,3 @@ Stop the script with `Ctrl+C`.
 - It logs only new messages received while the script is running.
 - Keep `.env`, `*.session`, logs, and downloaded media private.
 - Do not commit `.env` or session files to GitHub.
-
-## Publish To GitHub
-
-If this folder is not a Git repository yet:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/Za1kafps/telegram-p.git
-git push -u origin main
-```
