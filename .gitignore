@@ -1,0 +1,12 @@
+.env
+*.session
+*.session-journal
+images-*/
+files-*/
+voice-*/
+log-*.txt
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
