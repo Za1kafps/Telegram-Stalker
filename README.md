@@ -1,6 +1,11 @@
-# Telegram Message Monitor
+# Telegram Activity Monitor
 
-Python script that logs new Telegram messages from a selected user and downloads their attachments.
+Python script that logs activity from a selected Telegram user:
+
+- new messages and downloaded attachments;
+- stable online/offline changes;
+- unavailable privacy statuses such as "last seen recently" or "last seen a long time ago";
+- story updates visible to your Telegram account.
 
 ## Requirements
 
@@ -57,9 +62,12 @@ On the first run, Telegram will ask for your phone number, login code, and possi
 
 Stop the script with `Ctrl+C`.
 
-## Notes
+## Logs
 
-- The script can only see messages available to your Telegram account.
-- It logs only new messages received while the script is running.
-- Keep `.env`, `*.session`, logs, and downloaded media private.
-- Do not commit `.env` or session files to GitHub.
+For `@username`, the script creates:
+
+- `log-username.txt` with messages, presence changes, unavailable presence notices, and story updates;
+- `images-username/` for message photos;
+- `voice-username/` for voice messages and video notes;
+- `files-username/` for other attachments.
+
