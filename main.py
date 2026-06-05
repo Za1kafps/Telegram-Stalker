@@ -1,58 +1,40 @@
 import os
-import asyncio
-from datetime import datetime
-from telethon import TelegramClient, events
-from dotenv import load_dotenv
-load_dotenv()
-API_ID = os.getenv('API_ID')
-API_HASH = os.getenv('API_HASH')
 
-if not API_ID or not API_HASH:
-    print("Error: Specify API_ID and API_HASH in the .env file")
+from telethon import TelegramClient
+
+from telegram_stalk.config import load_config
+from telegram_stalk.logger import ActivityLogger
+from telegram_stalk.message_monitor import register_message_monitor
+from telegram_stalk.paths import prepare_target_paths
+from telegram_stalk.presence_monitor import PresenceMonitor
+from telegram_stalk.story_monitor import register_story_monitor
+
+
+try:
+    config = load_config()
+except RuntimeError as error:
+    print(error)
     exit(1)
-client = TelegramClient('user_session', int(API_ID), API_HASH)
+
+client = TelegramClient(config.session_name, config.api_id, config.api_hash)
 
 async def main():
     target_username = input("Enter the user's username (example, @username):").strip()
     os.system('cls' if os.name == 'nt' else 'clear')
-    clean_username = target_username.replace("@", "")
-    print(f"[*] Monitoring of messages from {target_username}...")
+
+    paths = prepare_target_paths(target_username)
+    logger = ActivityLogger(paths.log_file)
+    target_entity = await client.get_entity(target_username)
+    target_user_id = target_entity.id
+
+    print(f"[*] Monitoring of messages, presence and stories from {target_username}...")
     print("[*] To stop the script, press Ctrl+C\n")
-    dirs = {
-        "images": f"images-{clean_username}",
-        "files": f"files-{clean_username}",
-        "voice": f"voice-{clean_username}"
-    }
-    for d in dirs.values():
-        os.makedirs(d, exist_ok=True)
 
-    log_file = f"log-{clean_username}.txt"
-    @client.on(events.NewMessage(from_users=target_username))
-    async def handler(event):
-        try:
-            chat = await event.get_chat()
-            chat_name = getattr(chat, 'title', 'Private messages')
-            
-            msg_time = event.date.strftime('%Y-%m-%d %H:%M:%S')
-            text = event.raw_text or "<Without text>"
+    register_message_monitor(client, target_username, paths, logger)
+    presence_monitor = PresenceMonitor(client, target_user_id, logger)
+    presence_monitor.register()
+    register_story_monitor(client, target_user_id, logger)
 
-            log_msg = f"[{msg_time}] Chat: {chat_name} | Text: {text}"
-            if event.media:
-                if event.photo:
-                    path = await event.download_media(file=dirs["images"])
-                    log_msg += f" | [Image: {path}]"
-                elif event.voice or event.video_note:
-                    path = await event.download_media(file=dirs["voice"])
-                    log_msg += f" | [Voice/Circle: {path}]"
-                else:
-                    path = await event.download_media(file=dirs["files"])
-                    log_msg += f" | [File: {path}]"
-            print(log_msg)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(log_msg + "\n")
-                
-        except Exception as e:
-            print(f"[-] Error processing the message: {e}")
     await client.run_until_disconnected()
 
 if __name__ == '__main__':
