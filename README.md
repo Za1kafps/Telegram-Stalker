@@ -1,5 +1,4 @@
-# Telegram Activity Monitor
-
+# Telegram stalker
 Python script that logs activity from a selected Telegram user:
 
 - new messages and downloaded attachments;
